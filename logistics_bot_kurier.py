@@ -7,9 +7,9 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВИТИ_ТОКЕН")
 HR_USERNAME = "Vormilov"
 
-COMPANY_NAME = "Курьер РФ"
+COMPANY_NAME = "КурьерРФ"
 COMPANY_ABOUT = (
-    "<b>О компании Курьер РФ</b>\n\n"
+    "<b>О компании КурьерРФ</b>\n\n"
     "КурьерРФ — федеральная курьерская служба с многолетней историей. "
     "Мы начинали с нескольких городов, а сегодня работаем во всех крупных городах России: "
     "Москва, Санкт-Петербург, Екатеринбург, Новосибирск, Казань, Краснодар, "
@@ -25,36 +25,9 @@ COMPANY_ABOUT = (
 )
 
 VACANCIES = {
-    "v1": {
-        "icon": "🚶",
-        "title": "Пеший курьер",
-        "salary": "3 500–6 000 ₽ за смену",
-        "schedule": "Гибкий, смены 8–10 часов",
-        "location": "Вся Россия",
-        "duties": "• Доставка заказов пешком в пределах района\n• Приём и передача посылок получателю\n• Подтверждение доставки через приложение",
-        "requirements": "• Без опыта — обучаем\n• Смартфон с навигацией\n• Ответственность и пунктуальность",
-        "conditions": "• 3 500–6 000 ₽ за смену\n• Выплаты каждую неделю\n• Гибкий выбор смен\n• Оформление с первого дня",
-    },
-    "v2": {
-        "icon": "🚴",
-        "title": "Курьер на велосипеде / самокате / СИМ",
-        "salary": "4 500–8 000 ₽ за смену",
-        "schedule": "Гибкий, смены 8–10 часов",
-        "location": "Вся Россия",
-        "duties": "• Доставка заказов на личном или корпоративном транспорте\n• Работа по оптимизированным маршрутам\n• Подтверждение доставки через приложение",
-        "requirements": "• Велосипед, самокат или СИМ — свой или компании\n• Уверенное вождение в городе\n• Смартфон с навигацией",
-        "conditions": "• 4 500–8 000 ₽ за смену, в пиковые дни выше\n• Выплаты каждую неделю\n• Гибкий выбор смен\n• Оформление с первого дня",
-    },
-    "v3": {
-        "icon": "🚗",
-        "title": "Курьер на авто / мото",
-        "salary": "5 000–9 000 ₽ за смену",
-        "schedule": "Гибкий, смены 8–10 часов",
-        "location": "Вся Россия",
-        "duties": "• Доставка заказов на автомобиле или мотоцикле\n• Работа по маршрутам с несколькими точками\n• Подтверждение доставки через приложение",
-        "requirements": "• Водительское удостоверение кат. B (авто) или A (мото)\n• Опыт вождения в городе\n• Смартфон с навигацией",
-        "conditions": "• 5 000–9 000 ₽ за смену, при высокой загрузке больше\n• Свой транспорт с компенсацией топлива или транспорт компании\n• Выплаты каждую неделю\n• Оформление с первого дня",
-    },
+    "v1": {"icon": "🚶", "title": "Пеший курьер", "salary": "3 500–6 000 ₽ за смену"},
+    "v2": {"icon": "🚴", "title": "Курьер на велосипеде / самокате / СИМ", "salary": "4 500–8 000 ₽ за смену"},
+    "v3": {"icon": "🚗", "title": "Курьер на авто / мото", "salary": "5 000–9 000 ₽ за смену"},
 }
 
 logging.basicConfig(level=logging.INFO)
@@ -63,18 +36,34 @@ logger = logging.getLogger(__name__)
 
 def main_keyboard():
     return InlineKeyboardMarkup(
-        [[InlineKeyboardButton(f"{v['icon']} {v['title']}", callback_data=k)]
+        [[InlineKeyboardButton(f"{v['icon']} {v['title']}", callback_data=f"vac_{k}")]
          for k, v in VACANCIES.items()] +
         [[InlineKeyboardButton("🏢 О компании", callback_data="about")]]
     )
 
 
-def vacancy_keyboard(vac_id):
-    vac = VACANCIES[vac_id]
-    text = quote("Привет! Хочу узнать подробнее о вакансии", safe="")
+def age_keyboard(vac_id):
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("✉️ Написать Константину", url=f"https://t.me/{HR_USERNAME}?text={text}")],
-        [InlineKeyboardButton("← Все вакансии", callback_data="back")],
+        [InlineKeyboardButton("до 18", callback_data=f"age_до18_{vac_id}"),
+         InlineKeyboardButton("18–25", callback_data=f"age_18-25_{vac_id}")],
+        [InlineKeyboardButton("26–35", callback_data=f"age_26-35_{vac_id}"),
+         InlineKeyboardButton("36–45", callback_data=f"age_36-45_{vac_id}")],
+        [InlineKeyboardButton("45+", callback_data=f"age_45+_{vac_id}")],
+    ])
+
+
+def exp_keyboard(vac_id, age):
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ Да", callback_data=f"exp_да_{vac_id}_{age}"),
+         InlineKeyboardButton("❌ Нет", callback_data=f"exp_нет_{vac_id}_{age}")],
+    ])
+
+
+def start_keyboard(vac_id, age, exp):
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("🟢 Готов сейчас", callback_data=f"when_сейчас_{vac_id}_{age}_{exp}")],
+        [InlineKeyboardButton("📅 Через неделю", callback_data=f"when_через_неделю_{vac_id}_{age}_{exp}")],
+        [InlineKeyboardButton("👀 Просто смотрю", callback_data=f"when_просто_смотрю_{vac_id}_{age}_{exp}")],
     ])
 
 
@@ -94,8 +83,10 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 async def handle(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+    data = query.data
 
-    if query.data == "about":
+    # О компании
+    if data == "about":
         await query.edit_message_text(
             COMPANY_ABOUT,
             parse_mode="HTML",
@@ -105,28 +96,83 @@ async def handle(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    if query.data == "back":
+    # Назад
+    if data == "back":
         await query.edit_message_text(
-            "Актуальные вакансии <b>ТрансРФ</b>. Выберите интересующую:",
+            f"Актуальные вакансии <b>{COMPANY_NAME}</b>. Выберите интересующую:",
             parse_mode="HTML",
             reply_markup=main_keyboard()
         )
         return
 
-    vac = VACANCIES.get(query.data)
-    if not vac:
+    # Выбор вакансии → Вопрос 1: Возраст
+    if data.startswith("vac_"):
+        vac_id = data.split("_")[1]
+        vac = VACANCIES.get(vac_id)
+        await query.edit_message_text(
+            f"{vac['icon']} <b>{vac['title']}</b> — {vac['salary']}\n\n"
+            "Отлично! Пара быстрых вопросов, чтобы менеджер был готов к разговору.\n\n"
+            "<b>Вопрос 1 из 3</b>\nСколько вам лет?",
+            parse_mode="HTML",
+            reply_markup=age_keyboard(vac_id)
+        )
         return
 
-    await query.edit_message_text(
-        f"{vac['icon']} <b>{vac['title']}</b>\n"
-        f"💰 {vac['salary']}  |  📍 {vac['location']}  |  🕐 {vac['schedule']}\n\n"
-        f"<b>Обязанности:</b>\n{vac['duties']}\n\n"
-        f"<b>Требования:</b>\n{vac['requirements']}\n\n"
-        f"<b>Условия:</b>\n{vac['conditions']}\n\n"
-        "Остались вопросы или хотите откликнуться? Напишите нашему менеджеру Константину 👇",
-        parse_mode="HTML",
-        reply_markup=vacancy_keyboard(query.data)
-    )
+    # Ответ на возраст → Вопрос 2: Опыт
+    if data.startswith("age_"):
+        parts = data.split("_", 2)
+        age = parts[1]
+        vac_id = parts[2]
+        await query.edit_message_text(
+            "<b>Вопрос 2 из 3</b>\nВы работали курьером раньше?",
+            parse_mode="HTML",
+            reply_markup=exp_keyboard(vac_id, age)
+        )
+        return
+
+    # Ответ на опыт → Вопрос 3: Когда начать
+    if data.startswith("exp_"):
+        parts = data.split("_", 3)
+        exp = parts[1]
+        vac_id = parts[2]
+        age = parts[3]
+        await query.edit_message_text(
+            "<b>Вопрос 3 из 3</b>\nКогда готовы приступить к работе?",
+            parse_mode="HTML",
+            reply_markup=start_keyboard(vac_id, age, exp)
+        )
+        return
+
+    # Ответ на когда → Финал
+    if data.startswith("when_"):
+        parts = data.split("_", 4)
+        when = parts[1]
+        vac_id = parts[2]
+        age = parts[3]
+        exp = parts[4]
+        vac = VACANCIES.get(vac_id)
+
+        exp_text = "есть опыт курьера" if exp == "да" else "без опыта"
+        msg = quote(
+            f"Привет! Интересует вакансия: {vac['title']}\n"
+            f"Возраст: {age}\n"
+            f"Опыт: {exp_text}\n"
+            f"Готов начать: {when}",
+            safe=""
+        )
+
+        await query.edit_message_text(
+            f"✅ <b>Отлично, {age} лет, {exp_text}!</b>\n\n"
+            f"Вы выбрали: <b>{vac['title']}</b>\n"
+            f"💰 {vac['salary']}\n\n"
+            "Нажмите кнопку ниже — менеджер уже будет знать о вас всё нужное 👇",
+            parse_mode="HTML",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("✉️ Написать менеджеру", url=f"https://t.me/{HR_USERNAME}?text={msg}")],
+                [InlineKeyboardButton("← В начало", callback_data="back")],
+            ])
+        )
+        return
 
 
 def main():
