@@ -63,7 +63,7 @@ def start_keyboard(vac_id, age, exp):
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🟢 Готов сейчас", callback_data=f"when_сейчас_{vac_id}_{age}_{exp}")],
         [InlineKeyboardButton("📅 Через неделю", callback_data=f"when_через_неделю_{vac_id}_{age}_{exp}")],
-        [InlineKeyboardButton("👀 Просто смотрю", callback_data=f"when_просто_смотрю_{vac_id}_{age}_{exp}")],
+        [InlineKeyboardButton("💬 Есть вопросы", callback_data=f"when_есть_вопросы_{vac_id}_{age}_{exp}")],
     ])
 
 
@@ -137,7 +137,8 @@ async def handle(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         vac_id = parts[2]
         age = parts[3]
         await query.edit_message_text(
-            "<b>Вопрос 3 из 3</b>\nКогда готовы приступить к работе?",
+            "<b>Вопрос 3 из 3</b>\nКогда готовы приступить к работе?\n\n"
+            "После ответа вас переключат к менеджеру Константину 👇",
             parse_mode="HTML",
             reply_markup=start_keyboard(vac_id, age, exp)
         )
@@ -153,22 +154,28 @@ async def handle(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         vac = VACANCIES.get(vac_id)
 
         exp_text = "есть опыт курьера" if exp == "да" else "без опыта"
+        when_text = {
+            "сейчас": "готов сейчас",
+            "через_неделю": "через неделю",
+            "есть_вопросы": "есть вопросы",
+        }.get(when, when)
+
         msg = quote(
             f"Привет! Интересует вакансия: {vac['title']}\n"
             f"Возраст: {age}\n"
             f"Опыт: {exp_text}\n"
-            f"Готов начать: {when}",
+            f"Готов начать: {when_text}",
             safe=""
         )
 
         await query.edit_message_text(
-            f"✅ <b>Отлично, {age} лет, {exp_text}!</b>\n\n"
-            f"Вы выбрали: <b>{vac['title']}</b>\n"
+            f"✅ Спасибо за ответы!\n\n"
+            f"Вакансия: <b>{vac['title']}</b>\n"
             f"💰 {vac['salary']}\n\n"
-            "Нажмите кнопку ниже — менеджер уже будет знать о вас всё нужное 👇",
+            "Нажмите кнопку ниже — менеджер Константин уже будет знать о вас всё нужное 👇",
             parse_mode="HTML",
             reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("✉️ Написать менеджеру", url=f"https://t.me/{HR_USERNAME}?text={msg}")],
+                [InlineKeyboardButton("✉️ Написать Константину", url=f"https://t.me/{HR_USERNAME}?text={msg}")],
                 [InlineKeyboardButton("← В начало", callback_data="back")],
             ])
         )
