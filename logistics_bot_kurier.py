@@ -7,9 +7,9 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВИТИ_ТОКЕН")
 HR_USERNAME = "Vormilov"
 
-COMPANY_NAME = "КурьерРФ"
+COMPANY_NAME = "Курьер РФ"
 COMPANY_ABOUT = (
-    "<b>О компании КурьерРФ</b>\n\n"
+    "<b>О компании Курьер РФ</b>\n\n"
     "КурьерРФ — федеральная курьерская служба с многолетней историей. "
     "Мы начинали с нескольких городов, а сегодня работаем во всех крупных городах России: "
     "Москва, Санкт-Петербург, Екатеринбург, Новосибирск, Казань, Краснодар, "
