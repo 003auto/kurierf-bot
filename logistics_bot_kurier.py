@@ -6,7 +6,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВИТЬ_ТОКЕН")
-HR_USERNAME = "ВСТАВИТЬ_USERNAME_ВАЛЕРИЯ"  # без @
+HR_USERNAME = os.getenv("HR_USERNAME", "ВСТАВИТЬ_USERNAME_ВАЛЕРИЯ").lstrip("@")
 
 TEXT = (
     "Здравствуйте, {name}! 👋\n\n"
