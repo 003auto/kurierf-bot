@@ -6,7 +6,8 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВИТЬ_ТОКЕН")
-HR_USERNAME = os.getenv("HR_USERNAME", "ВСТАВИТЬ_USERNAME_ВАЛЕРИЯ").lstrip("@")
+HR_USERNAME = os.getenv("HR_USERNAME", "ВСТАВИТЬ_USERNAME_ВАЛЕРИЯ").strip().lstrip("@")
+logging.getLogger(__name__).warning("HR link: https://t.me/%s", HR_USERNAME)
 
 TEXT = (
     "Здравствуйте, {name}! 👋\n\n"
