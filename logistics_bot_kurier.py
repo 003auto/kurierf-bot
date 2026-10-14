@@ -9,7 +9,8 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВИТЬ_ТОКЕН")
 HR_USERNAME = os.getenv("HR_USERNAME", "ВСТАВИТЬ_USERNAME_ВАЛЕРИЯ").strip().lstrip("@")
 HR_MESSAGE = "Здравствуйте, я по поводу вакансии курьера."
-HR_LINK = f"https://t.me/{HR_USERNAME}?text={quote(HR_MESSAGE, safe='')}"
+# tg://resolve открывает сразу чат (а не профиль) и вставляет текст в поле ввода
+HR_LINK = f"tg://resolve?domain={HR_USERNAME}&text={quote(HR_MESSAGE, safe='')}"
 logging.getLogger(__name__).warning("HR link: %s", HR_LINK)
 
 TEXT = (
