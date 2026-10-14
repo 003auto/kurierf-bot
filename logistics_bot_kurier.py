@@ -1,13 +1,16 @@
 import logging
 import os
 from html import escape
+from urllib.parse import quote
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "ВСТАВИТЬ_ТОКЕН")
 HR_USERNAME = os.getenv("HR_USERNAME", "ВСТАВИТЬ_USERNAME_ВАЛЕРИЯ").strip().lstrip("@")
-logging.getLogger(__name__).warning("HR link: https://t.me/%s", HR_USERNAME)
+HR_MESSAGE = "Здравствуйте, я по поводу вакансии курьера."
+HR_LINK = f"https://t.me/{HR_USERNAME}?text={quote(HR_MESSAGE, safe='')}"
+logging.getLogger(__name__).warning("HR link: %s", HR_LINK)
 
 TEXT = (
     "Здравствуйте, {name}! 👋\n\n"
@@ -33,7 +36,7 @@ logger = logging.getLogger(__name__)
 async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     name = escape(update.effective_user.first_name or "")
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("✉️ Написать Валерию", url=f"https://t.me/{HR_USERNAME}")]
+        [InlineKeyboardButton("✉️ Написать Валерию", url=HR_LINK)]
     ])
     await update.message.reply_text(
         TEXT.format(name=name),
