@@ -1,1 +1,1 @@
-worker: python logistics_bot_kurier.py
+   worker: python bot.py
