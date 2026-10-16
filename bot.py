@@ -42,7 +42,7 @@ TEXT = (
     "<b>Курьер РФ</b> — курьерская служба, специализирующаяся на срочной доставке "
     "документов и небольших посылок по России.\n\n"
     "<b>📋 Условия работы:</b>\n"
-    "💰 Оплата: от 2 000 до 6 000 ₽ за заказ\n"
+    "💰 Оплата: от 200 до 500 ₽ за заказ\n"
     "📍 Работа в вашем городе\n"
     "🕒 Гибкий график\n"
     "✅ Опыт работы не требуется\n"
@@ -51,6 +51,27 @@ TEXT = (
     "Наш HR-специалист Валерий расскажет об условиях сотрудничества, ответит на ваши "
     "вопросы и поможет с оформлением заявки.\n\n"
     "👇 Нажмите кнопку «Написать Валерию», чтобы обсудить все детали.\n\n"
+    "<i>Работодатель: ООО «КУРЬЕР», ИНН 9717147317, ОГРН 1237700764135</i>"
+)
+
+ABOUT_TEXT = (
+    "<b>🏢 О КОМПАНИИ</b>\n"
+    "Курьер РФ — сервис, ориентированный на подбор курьеров для доставки документов "
+    "и небольших посылок на территории России.\n"
+    "Наша цель — сделать поиск работы в сфере доставки простым и удобным. Мы предлагаем "
+    "соискателям возможность ознакомиться с доступными вакансиями, выбрать подходящий "
+    "график и получить консультацию HR-специалиста.\n\n"
+    "<b>📜 ИСТОРИЯ КОМПАНИИ</b>\n"
+    "ООО «КУРЬЕР» зарегистрировано 9 ноября 2023 года в Москве. Основное направление "
+    "деятельности организации — услуги почтовой связи. Среди дополнительных направлений — "
+    "транспортные перевозки и подбор персонала.\n\n"
+    "<b>📋 ЮРИДИЧЕСКАЯ ИНФОРМАЦИЯ</b>\n"
+    "Полное название: ООО «КУРЬЕР»\n"
+    "ИНН: 9717147317\n"
+    "ОГРН: 1237700764135\n"
+    "КПП: 771701001\n"
+    "Дата регистрации: 09.11.2023\n"
+    "Юридический адрес: 129626, г. Москва, проспект Мира, д. 102, корп. 1, помещ. 3/7"
 )
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -60,6 +81,20 @@ logger = logging.getLogger("bot")
 
 def hr_keyboard(label="✉️ Написать Валерию"):
     return InlineKeyboardMarkup([[InlineKeyboardButton(label, url=HR_LINK)]])
+
+
+def main_keyboard():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("✉️ Написать Валерию", url=HR_LINK)],
+        [InlineKeyboardButton("🏢 О компании", callback_data="about")],
+    ])
+
+
+def about_keyboard():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("✉️ Написать Валерию", url=HR_LINK)],
+        [InlineKeyboardButton("← Вернуться к вакансии", callback_data="home")],
+    ])
 
 
 def is_admin(update: Update) -> bool:
@@ -167,9 +202,24 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         TEXT.format(name=escape(user.first_name or "")),
         parse_mode="HTML",
-        reply_markup=hr_keyboard(),
+        reply_markup=main_keyboard(),
         disable_web_page_preview=True,
     )
+
+
+async def on_nav_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    await q.answer()
+    if q.data == "about":
+        text, kb = ABOUT_TEXT, about_keyboard()
+    else:  # home
+        text = TEXT.format(name=escape(q.from_user.first_name or ""))
+        kb = main_keyboard()
+    try:
+        await q.edit_message_text(text, parse_mode="HTML", reply_markup=kb,
+                                  disable_web_page_preview=True)
+    except TelegramError as e:  # "message is not modified" при двойном клике
+        logger.debug("nav: %s", e)
 
 
 # ───────────────────────── Telegram Business ─────────────────────────
@@ -344,6 +394,7 @@ def main():
     app.add_handler(CommandHandler("reset_stats", cmd_reset))
     app.add_handler(CommandHandler("broadcast", cmd_broadcast))
     app.add_handler(CommandHandler("chatid", cmd_chatid))
+    app.add_handler(CallbackQueryHandler(on_nav_button, pattern=r"^(about|home)$"))
     app.add_handler(CallbackQueryHandler(on_admin_button, pattern=r"^(reset_|bc_)"))
     app.add_handler(BusinessConnectionHandler(on_business_connection))
     app.add_handler(MessageHandler(filters.UpdateType.BUSINESS_MESSAGE, on_business_message))
