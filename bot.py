@@ -41,14 +41,9 @@ TEXT = (
     "Здравствуйте, {name}! 👋\n\n"
     "🏢 <b>«Курьер РФ»</b> — курьерская служба, специализирующаяся на срочной доставке "
     "документов и небольших посылок по всей России.\n\n"
-    "📦 Сейчас мы ищем курьеров в нашу команду и предлагаем следующие условия:\n"
-    "💰 Доход: от 2 000 до 6 000 ₽ за смену\n"
-    "📍 Работа в вашем городе\n"
-    "🕒 Гибкий график\n"
-    "✅ Опыт работы не требуется\n\n"
-    "<b>📲 Хотите узнать подробнее о вакансии?</b>\n"
-    "Наш HR-специалист Валерий расскажет обо всех условиях, ответит на ваши вопросы "
-    "и поможет с оформлением заявки."
+    "📦 Сейчас мы ищем курьеров в вашем городе: доход от 2 000 до 6 000 ₽ за смену, "
+    "гибкий график, опыт не требуется.\n\n"
+    "👇 Выберите, что хотите узнать:"
 )
 
 VACANCY_TEXT = (
@@ -100,7 +95,6 @@ def hr_keyboard(label="✉️ Написать Валерию"):
 
 def main_keyboard():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("✉️ Написать Валерию", url=HR_LINK)],
         [InlineKeyboardButton("📋 Подробнее о вакансии", callback_data="vacancy")],
         [InlineKeyboardButton("🏢 О компании", callback_data="about")],
     ])
@@ -109,14 +103,12 @@ def main_keyboard():
 def vacancy_keyboard():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("✉️ Написать Валерию", url=HR_LINK)],
-        [InlineKeyboardButton("← Назад", callback_data="home")],
     ])
 
 
 def about_keyboard():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("✉️ Написать Валерию", url=HR_LINK)],
-        [InlineKeyboardButton("← Вернуться к вакансии", callback_data="home")],
+        [InlineKeyboardButton("📋 Подробнее о вакансии", callback_data="vacancy")],
     ])
 
 
