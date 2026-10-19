@@ -39,18 +39,35 @@ LABEL_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
 TEXT = (
     "Здравствуйте, {name}! 👋\n\n"
-    "<b>Курьер РФ</b> — курьерская служба, специализирующаяся на срочной доставке "
-    "документов и небольших посылок по России.\n\n"
-    "<b>📋 Условия работы:</b>\n"
-    "💰 Оплата: от 2 000 до 6 000 ₽ за смену\n"
+    "🏢 <b>«Курьер РФ»</b> — курьерская служба, специализирующаяся на срочной доставке "
+    "документов и небольших посылок по всей России.\n\n"
+    "📦 Сейчас мы ищем курьеров в нашу команду и предлагаем следующие условия:\n"
+    "💰 Доход: от 2 000 до 6 000 ₽ за смену\n"
     "📍 Работа в вашем городе\n"
     "🕒 Гибкий график\n"
-    "✅ Опыт работы не требуется\n"
-    "📦 Доставка малогабаритных отправлений\n\n"
+    "✅ Опыт работы не требуется\n\n"
     "<b>📲 Хотите узнать подробнее о вакансии?</b>\n"
-    "Наш HR-специалист Валерий расскажет об условиях сотрудничества, ответит на ваши "
-    "вопросы и поможет с оформлением заявки.\n\n"
-    "👇 Нажмите кнопку «Написать Валерию», чтобы обсудить все детали.\n\n"
+    "Наш HR-специалист Валерий расскажет обо всех условиях, ответит на ваши вопросы "
+    "и поможет с оформлением заявки."
+)
+
+VACANCY_TEXT = (
+    "<b>📦 Вакансия: Курьер «Курьер РФ»</b>\n"
+    "Доставка документов и небольших посылок по вашему городу.\n\n"
+    "<b>📋 Обязанности:</b>\n"
+    "• Получение и доставка заказов.\n"
+    "• Подтверждение выполненных доставок.\n\n"
+    "<b>✅ Требования:</b>\n"
+    "• Возраст от 18 лет.\n"
+    "• Знание русского языка.\n"
+    "• Ответственность.\n"
+    "• Опыт не требуется.\n\n"
+    "<b>🕒 Условия:</b>\n"
+    "• Гибкий график, возможность подработки.\n"
+    "• Работа в вашем городе.\n\n"
+    "<b>💰 Доход: 2 000–6 000 ₽ за смену.</b>\n"
+    "Оплата зависит от города, количества заказов и длительности смены.\n\n"
+    "📲 Напишите HR-специалисту Валерию, чтобы узнать подробности и оставить заявку."
 )
 
 ABOUT_TEXT = (
@@ -85,7 +102,15 @@ def hr_keyboard(label="✉️ Написать Валерию"):
 def main_keyboard():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("✉️ Написать Валерию", url=HR_LINK)],
+        [InlineKeyboardButton("📋 Подробнее о вакансии", callback_data="vacancy")],
         [InlineKeyboardButton("🏢 О компании", callback_data="about")],
+    ])
+
+
+def vacancy_keyboard():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("✉️ Написать Валерию", url=HR_LINK)],
+        [InlineKeyboardButton("← Назад", callback_data="home")],
     ])
 
 
@@ -211,6 +236,8 @@ async def on_nav_button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     if q.data == "about":
         text, kb = ABOUT_TEXT, about_keyboard()
+    elif q.data == "vacancy":
+        text, kb = VACANCY_TEXT, vacancy_keyboard()
     else:  # home
         text = TEXT.format(name=escape(q.from_user.first_name or ""))
         kb = main_keyboard()
@@ -393,7 +420,7 @@ def main():
     app.add_handler(CommandHandler("reset_stats", cmd_reset))
     app.add_handler(CommandHandler("broadcast", cmd_broadcast))
     app.add_handler(CommandHandler("chatid", cmd_chatid))
-    app.add_handler(CallbackQueryHandler(on_nav_button, pattern=r"^(about|home)$"))
+    app.add_handler(CallbackQueryHandler(on_nav_button, pattern=r"^(about|home|vacancy)$"))
     app.add_handler(CallbackQueryHandler(on_admin_button, pattern=r"^(reset_|bc_)"))
     app.add_handler(BusinessConnectionHandler(on_business_connection))
     app.add_handler(MessageHandler(filters.UpdateType.BUSINESS_MESSAGE, on_business_message))
